@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
+import time
+import sys
 from matplotlib import pyplot as plt
+from memory_profiler import profile
 
-def levenshtein_matrix(s1, s2):
+def levenshtein_matrix(s1, s2, return_matrix=False):
     matrix = alloc_matrix(s1, s2)
 
     # 1. Simple cases
@@ -21,7 +24,10 @@ def levenshtein_matrix(s1, s2):
 
     distance = matrix[matrix.shape[0] - 1][matrix.shape[1] - 1]
     
-    return matrix, distance
+    if return_matrix:
+        return matrix, distance
+    else:
+        return matrix
 
 def levenshtein_rec(s1, s2):
     i, j = len(s1), len(s2)
@@ -36,7 +42,7 @@ def levenshtein_rec(s1, s2):
                levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
                levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
 
-def domerau_levenshtein_matrix(s1, s2):
+def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
     matrix = alloc_matrix(s1, s2)
 
     # 1. Simple cases
@@ -61,8 +67,11 @@ def domerau_levenshtein_matrix(s1, s2):
                 matrix[i][j] = min(y + 1, z + 1, x + (0 if s1[i - 1] == s2[j - 1] else 1))
 
     distance = matrix[matrix.shape[0] - 1][matrix.shape[1] - 1]
-    
-    return matrix, distance
+
+    if return_matrix:
+        return matrix, distance
+    else:
+        return distance
 
 def domerau_levenshtein_rec(s1, s2):
     i, j = len(s1), len(s2)
@@ -94,19 +103,26 @@ def print_result(title, s1, s2, distance, matrix=None):
 def measure_time():
     pass
 
-def test():
-    pass
+def test_method(method, s1, s2, ntimes=20):
+    running_time = 0
+    for _ in range(ntimes):
+        start_time = time.time()
+        method(s1, s2)
+        running_time += (time.time() - start_time)
+
+    average_running_time = running_time / ntimes
 
 def test_all():
     pass
 
 def main():
+    # Test
     s1, s2 = "скат", "кот"
     
-    lm, lm_d = levenshtein_matrix(s1, s2)
+    lm, lm_d = levenshtein_matrix(s1, s2, return_matrix=True)
     print_result("Levenshtein Matrix", s1, s2, lm_d, matrix=lm)
 
-    dlm, dlm_d = domerau_levenshtein_matrix(s1, s2)
+    dlm, dlm_d = domerau_levenshtein_matrix(s1, s2, return_matrix=True)
     print_result("Domerau-Levenshtein Matrix", s1, s2, dlm_d, matrix=dlm)
 
     lrd = levenshtein_rec(s1, s2) # Levenstein recursion distance
@@ -117,3 +133,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    test_method(levenshtein_matrix, "кот", "кто")
+
+
+
