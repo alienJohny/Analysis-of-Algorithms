@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
 def levenshtein_matrix(s1, s2):
     matrix = alloc_matrix(s1, s2)
@@ -85,7 +86,9 @@ def alloc_matrix(s1, s2):
 def print_result(title, s1, s2, distance, matrix=None):
     print("Distance between \"{0}\" and \"{1}\" according to {2} is {3}".format(s1, s2, title, int(distance)))
     if matrix is not None:
-        print(matrix)
+        df = pd.DataFrame(matrix, columns=list(" " + s2))
+        df.index = list(" " + s1)
+        print(df)
     print()
 
 def measure_time():
