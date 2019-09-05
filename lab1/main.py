@@ -27,7 +27,7 @@ def levenshtein_matrix(s1, s2, return_matrix=False):
     if return_matrix:
         return matrix, distance
     else:
-        return matrix
+        return distance
 
 def levenshtein_rec(s1, s2):
     i, j = len(s1), len(s2)
@@ -105,15 +105,31 @@ def measure_time():
 
 def test_method(method, s1, s2, ntimes=20):
     running_time = 0
+    distance = None
     for _ in range(ntimes):
         start_time = time.time()
-        method(s1, s2)
+        distance = method(s1, s2)
         running_time += (time.time() - start_time)
 
     average_running_time = running_time / ntimes
 
+    return (method.__name__, s1, s2, distance, average_running_time)
+
 def test_all():
-    pass
+    methods = [levenshtein_rec, levenshtein_matrix, domerau_levenshtein_rec, domerau_levenshtein_matrix]
+    tests = [["кот", "окт"],
+             ["опток", "поток"],
+             ["одеть", "надеть"],
+             ["gugl", "google"],
+             ["gugol", "google"]]
+
+    for word_pair in tests:
+        print("\n{0}s1: {1}, s2: {2}{3}".format("\033[1m", word_pair[0], word_pair[1], "\033[0m"))
+        for method in methods:
+            test_report = test_method(method, word_pair[0], word_pair[1])
+            print("Method: {0:26} Distance: {1:<3d} Average running time: {2:3.12f}".format(test_report[0],
+                                                                                            int(test_report[3]),
+                                                                                            test_report[4]))
 
 def main():
     # Test
@@ -133,7 +149,8 @@ def main():
 
 if __name__ == "__main__":
     main()
-    test_method(levenshtein_matrix, "кот", "кто")
+    test_all()
+
 
 
 
