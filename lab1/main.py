@@ -39,35 +39,32 @@ def levenshtein_rec(s1, s2):
                levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
 
 def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
-    matrix = alloc_matrix(s1, s2)
+    d = np.zeros((len(s1) + 2, len(s2) + 2))
 
     # 1. Simple cases
-    for i in range(1, len(s1) + 1): # Fill the first colums
-        matrix[i][0] = i
-    for i in range(1, len(s2) + 1): # Fill the first row
-        matrix[0][i] = i
+    for i in range(len(d)):  # Fill the first columns
+        d[i][0] = i
+    for i in range(len(d[0])):  # Fill the first row
+        d[0][i] = i
 
-    # 2. i > 0, j > 0
-    for i in range(1, len(s1) + 1):
-        for j in range(1, len(s2) + 1):
-            x = matrix[i - 1][j - 1]
-            y = matrix[i - 1][j]
-            z = matrix[i][j - 1]
-
-            # Domerau method
-            if i >= 2 and j >= 2:
-                match = matrix[i - 2][j - 2] + (1 if ((s1[i - 1] == s2[j - 2]) and (s2[j - 1] == s1[i - 2])) else 0)
-                matrix[i][j] = min(match,
-                                   y + 1, z + 1, x + (0 if s1[i - 1] == s2[j - 1] else 1))
+    for i in range(len(s1)):
+        for j in range(len(s2)):
+            if s1[i] == s2[j]:
+                cost = 0
             else:
-                matrix[i][j] = min(y + 1, z + 1, x + (0 if s1[i - 1] == s2[j - 1] else 1))
-
-    distance = matrix[matrix.shape[0] - 1][matrix.shape[1] - 1]
+                cost = 1
+            d[i][j] = min(
+                d[i - 1][j] + 1,  # deletion
+                d[i][j - 1] + 1,  # insertion
+                d[i - 1][j - 1] + cost,  # substitution
+            )
+            if i and j and s1[i] == s2[j - 1] and s1[i - 1] == s2[j]:
+                d[i][j] = min(d[i][j], d[i - 2][j - 2] + cost)  # transposition
 
     if return_matrix:
-        return matrix, distance
+        return d, d[len(s1) - 1, len(s2) - 1]
     else:
-        return distance
+        return d[len(s1) - 1, len(s2) - 1]
 
 def domerau_levenshtein_rec(s1, s2):
     """
@@ -82,13 +79,13 @@ def domerau_levenshtein_rec(s1, s2):
     if min(i, j) == 0:
         return max(i, j)
     if (i > 1 and j > 1) and (s1[i - 1] == s2[j - 2]) and (s1[i - 2] == s2[j - 1]):
-        return min(levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
-                   levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
-                   levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1),
-                   levenshtein_rec(s1[0:i - 2], s2[0:j - 2]) + 1)
-    return min(levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
-               levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
-               levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
+        return min(domerau_levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
+                   domerau_levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
+                   domerau_levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1),
+                   domerau_levenshtein_rec(s1[0:i - 2], s2[0:j - 2]) + 1)
+    return min(domerau_levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
+               domerau_levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
+               domerau_levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
 
 def alloc_matrix(s1, s2):
     matrix_shape = (len(s1) + 1, len(s2) + 1)
@@ -105,7 +102,7 @@ def print_result(title, s1, s2, distance, matrix=None):
 def measure_time():
     pass
 
-def test_method(method, s1, s2, ntimes=20):
+def test_method(method, s1, s2, ntimes=1):
     running_time = 0
     distance = None
     for _ in range(ntimes):
@@ -120,7 +117,7 @@ def test_method(method, s1, s2, ntimes=20):
 def test_all():
     methods = [levenshtein_rec, levenshtein_matrix, domerau_levenshtein_rec, domerau_levenshtein_matrix]
     tests = [["ea", "ape"],
-             ["кот", "скат"],
+             ["eli", "eil"],
              ["baba", "arab"],
              ["gugol", "google"],
              ["martial", "marital"],
@@ -151,7 +148,7 @@ def main():
     print_result("Domerau-Levenstain Recursive Method", s1, s2, dlrd)
 
 if __name__ == "__main__":
-    main()
+    #main()
     test_all()
 
 
