@@ -32,12 +32,8 @@ def levenshtein_matrix(s1, s2, return_matrix=False):
 def levenshtein_rec(s1, s2):
     i, j = len(s1), len(s2)
 
-    if i == 0:
-        return j
-    if j == 0:
-        return i
-    if i == 0 and j == 0:
-        return 0
+    if min(i, j) == 0:
+        return max(i, j)
     return min(levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
                levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
                levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
@@ -60,9 +56,9 @@ def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
 
             # Domerau method
             if i >= 2 and j >= 2:
-                match = matrix[i - 2][j - 2] + \
-                        (1 if ((s1[i - 1] == s2[j - 2]) and (s2[j - 1] == s1[i - 2])) else 0)
-                matrix[i][j] = min(match, y + 1, z + 1, x + (0 if s1[i - 1] == s2[j - 1] else 1))
+                match = matrix[i - 2][j - 2] + (1 if ((s1[i - 1] == s2[j - 2]) and (s2[j - 1] == s1[i - 2])) else 0)
+                matrix[i][j] = min(match,
+                                   y + 1, z + 1, x + (0 if s1[i - 1] == s2[j - 1] else 1))
             else:
                 matrix[i][j] = min(y + 1, z + 1, x + (0 if s1[i - 1] == s2[j - 1] else 1))
 
@@ -74,19 +70,25 @@ def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
         return distance
 
 def domerau_levenshtein_rec(s1, s2):
-    i, j = len(s1), len(s2)
+    """
+    https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+    :param s1: first word
+    :param s2: second word
+    :return: domerau-levenstein distance between them
+    """
+    i = len(s1)
+    j = len(s2)
 
-    if i == 0:
-        return j
-    if j == 0:
-        return i
-    if i == 0 and j == 0:
-        return 0
-    return min(levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
-               levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
-               levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 2] == s2[j - 2] else 1),
-               levenshtein_rec(s1[0:i - 2], s2[0:j - 2]) + 1,
-               0 if ((s1[i - 2] == s2[j - 1]) and (s1[i - 1] == s2[j - 2])) else 1)
+    if min(i, j) == 0:
+        return max(i, j)
+    if (i > 1 and j > 1) and (s1[i - 1] == s2[j - 2]) and (s1[i - 2] == s2[j - 1]):
+        return min(levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
+                   levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
+                   levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1),
+                   levenshtein_rec(s1[0:i - 2], s2[0:j - 2]) + 1)
+    return min(levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
+               levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
+               levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
 
 def alloc_matrix(s1, s2):
     matrix_shape = (len(s1) + 1, len(s2) + 1)
