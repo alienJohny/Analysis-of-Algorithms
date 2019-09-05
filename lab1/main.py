@@ -117,11 +117,12 @@ def test_method(method, s1, s2, ntimes=20):
 
 def test_all():
     methods = [levenshtein_rec, levenshtein_matrix, domerau_levenshtein_rec, domerau_levenshtein_matrix]
-    tests = [["кот", "окт"],
-             ["опток", "поток"],
-             ["одеть", "надеть"],
-             ["gugl", "google"],
-             ["gugol", "google"]]
+    tests = [["ea", "ape"],
+             ["кот", "скат"],
+             ["baba", "arab"],
+             ["gugol", "google"],
+             ["martial", "marital"],
+             ["smoking", "hospital"]]
 
     for word_pair in tests:
         print("\n{0}s1: {1}, s2: {2}{3}".format("\033[1m", word_pair[0], word_pair[1], "\033[0m"))
