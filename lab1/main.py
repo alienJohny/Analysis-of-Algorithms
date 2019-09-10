@@ -3,20 +3,19 @@ import pandas as pd
 import time
 import sys
 from matplotlib import pyplot as plt
-from memory_profiler import profile
 
 def levenshtein_matrix(s1, s2, return_matrix=False):
     matrix = alloc_matrix(s1, s2)
 
     # 1. Simple cases
-    for i in range(1, len(s1) + 1): # Fill the first colums
+    for i in range(matrix.shape[0]): # Fill the first column
         matrix[i][0] = i
-    for i in range(1, len(s2) + 1): # Fill the first row
+    for i in range(matrix.shape[1]): # Fill the first row
         matrix[0][i] = i
 
     # 2. i > 0, j > 0
-    for i in range(1, len(s1) + 1):
-        for j in range(1, len(s2) + 1):
+    for i in range(1, matrix.shape[0]):
+        for j in range(1, matrix.shape[1]):
             x = matrix[i - 1][j - 1]
             y = matrix[i - 1][j]
             z = matrix[i][j - 1]
@@ -61,6 +60,8 @@ def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
             if i and j and s1[i] == s2[j - 1] and s1[i - 1] == s2[j]:
                 d[i][j] = min(d[i][j], d[i - 2][j - 2] + cost)  # transposition
 
+    print(d)
+
     if return_matrix:
         return d, d[len(s1) - 1, len(s2) - 1]
     else:
@@ -99,9 +100,6 @@ def print_result(title, s1, s2, distance, matrix=None):
         print(df)
     print()
 
-def measure_time():
-    pass
-
 def test_method(method, s1, s2, ntimes=1):
     running_time = 0
     distance = None
@@ -121,15 +119,47 @@ def test_all():
              ["baba", "arab"],
              ["gugol", "google"],
              ["martial", "marital"],
-             ["smoking", "hospital"]]
+             ["smoking", "hospital"],
+             ["channels", "chenels"],
+             ["addiction", "adicshon"]]
+    words_len = []
+    reports = {"levenshtein_rec": [],
+               "levenshtein_matrix": [],
+               "domerau_levenshtein_rec": [],
+               "domerau_levenshtein_matrix": []}
 
     for word_pair in tests:
         print("\n{0}s1: {1}, s2: {2}{3}".format("\033[1m", word_pair[0], word_pair[1], "\033[0m"))
+        words_len.append(len(word_pair[0])) # it will be on Ox
         for method in methods:
             test_report = test_method(method, word_pair[0], word_pair[1])
-            print("Method: {0:26} Distance: {1:<3d} Average running time: {2:3.12f}".format(test_report[0],
-                                                                                            int(test_report[3]),
-                                                                                            test_report[4]))
+
+            # Extract data
+            method_name = test_report[0]
+            distance = int(test_report[3])
+            runtime = test_report[4]
+
+            # Save data
+            reports[method_name].append(runtime)
+            print("Method: {0:26} Distance: {1:<3d} Average running time: {2:3.12f}".format(method_name,
+                                                                                            distance,
+                                                                                            runtime))
+    print_test_report(tests, reports)
+
+def print_test_report(words, report_dict):
+    _legend = []
+    plt.grid(True)
+    plt.ylabel("Average running time depending on word length")
+    plt.xlabel("Word length")
+
+    word_lengths = [len(words[0]) for words in words]
+
+    for method in report_dict:
+        _legend.append(method)
+        plt.plot(word_lengths, report_dict[method])
+
+    plt.legend(_legend)
+    plt.show()
 
 def main():
     # Test
@@ -138,18 +168,18 @@ def main():
     lm, lm_d = levenshtein_matrix(s1, s2, return_matrix=True)
     print_result("Levenshtein Matrix", s1, s2, lm_d, matrix=lm)
 
-    dlm, dlm_d = domerau_levenshtein_matrix(s1, s2, return_matrix=True)
-    print_result("Domerau-Levenshtein Matrix", s1, s2, dlm_d, matrix=dlm)
-
     lrd = levenshtein_rec(s1, s2) # Levenstein recursion distance
     print_result("Levenstain Recursive Method", s1, s2, lrd)
 
-    dlrd = domerau_levenshtein_rec(s1, s2)
-    print_result("Domerau-Levenstain Recursive Method", s1, s2, dlrd)
+    dlm, dlm_d = domerau_levenshtein_matrix(s1, s2, return_matrix=True)
+    #print_result("Domerau-Levenshtein Matrix", s1, s2, dlm_d, matrix=dlm)
+
+    #dlrd = domerau_levenshtein_rec(s1, s2)
+    #print_result("Domerau-Levenstain Recursive Method", s1, s2, dlrd)
 
 if __name__ == "__main__":
-    #main()
-    test_all()
+    main()
+    #test_all()
 
 
 
