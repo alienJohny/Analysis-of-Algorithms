@@ -38,34 +38,28 @@ def levenshtein_rec(s1, s2):
                levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
 
 def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
-    d = np.zeros((len(s1) + 2, len(s2) + 2))
+    matrix = np.zeros((len(s1) + 2, len(s2) + 2)) # column is s1
 
     # 1. Simple cases
-    for i in range(len(d)):  # Fill the first columns
-        d[i][0] = i
-    for i in range(len(d[0])):  # Fill the first row
-        d[0][i] = i
+    for i in range(1, matrix.shape[0] - 1):  # Fill the first column
+        matrix[i + 1][1] = i
+    for i in range(1, matrix.shape[1] - 1):  # Fill the first row
+        matrix[1][i + 1] = i
 
-    for i in range(len(s1)):
-        for j in range(len(s2)):
-            if s1[i] == s2[j]:
-                cost = 0
-            else:
-                cost = 1
-            d[i][j] = min(
-                d[i - 1][j] + 1,  # deletion
-                d[i][j - 1] + 1,  # insertion
-                d[i - 1][j - 1] + cost,  # substitution
-            )
-            if i and j and s1[i] == s2[j - 1] and s1[i - 1] == s2[j]:
-                d[i][j] = min(d[i][j], d[i - 2][j - 2] + cost)  # transposition
+    for i in range(2, matrix.shape[0]):
+        for j in range(2, matrix.shape[1]):
+            y = matrix[i - 1][j] + 1
+            z = matrix[i][j - 1] + 1
+            x = matrix[i - 1][j - 1] + (0 if s1[i - 2] == s2[j - 2] else 1)
+            q = matrix[i - 2][j - 2] + (1 if s1[i - 2] == s2[j - 3] and s2[j - 2] == s1[i - 3] else np.inf)
+            matrix[i][j] = min(y, z, x, q)
 
-    print(d)
+    distance = matrix[matrix.shape[0] - 1][matrix.shape[1] - 1]
 
     if return_matrix:
-        return d, d[len(s1) - 1, len(s2) - 1]
+        return matrix, distance
     else:
-        return d[len(s1) - 1, len(s2) - 1]
+        return distance
 
 def domerau_levenshtein_rec(s1, s2):
     """
@@ -92,11 +86,12 @@ def alloc_matrix(s1, s2):
     matrix_shape = (len(s1) + 1, len(s2) + 1)
     return np.zeros(matrix_shape)
 
-def print_result(title, s1, s2, distance, matrix=None):
+def print_result(title, s1, s2, distance, matrix=None, dom=False):
     print("Distance between \"{0}\" and \"{1}\" according to {2} is {3}".format(s1, s2, title, int(distance)))
     if matrix is not None:
-        df = pd.DataFrame(matrix, columns=list(" " + s2))
-        df.index = list(" " + s1)
+        spaces = ("  " if dom else " ")
+        df = pd.DataFrame(matrix, columns=list(spaces + s2))
+        df.index = list(spaces + s1)
         print(df)
     print()
 
@@ -163,7 +158,7 @@ def print_test_report(words, report_dict):
 
 def main():
     # Test
-    s1, s2 = "скат", "кот"
+    s1, s2 = "кот", "кто"
     
     lm, lm_d = levenshtein_matrix(s1, s2, return_matrix=True)
     print_result("Levenshtein Matrix", s1, s2, lm_d, matrix=lm)
@@ -172,7 +167,7 @@ def main():
     print_result("Levenstain Recursive Method", s1, s2, lrd)
 
     dlm, dlm_d = domerau_levenshtein_matrix(s1, s2, return_matrix=True)
-    #print_result("Domerau-Levenshtein Matrix", s1, s2, dlm_d, matrix=dlm)
+    print_result("Domerau-Levenshtein Matrix", s1, s2, dlm_d, matrix=dlm, dom=True)
 
     #dlrd = domerau_levenshtein_rec(s1, s2)
     #print_result("Domerau-Levenstain Recursive Method", s1, s2, dlrd)
@@ -180,7 +175,3 @@ def main():
 if __name__ == "__main__":
     main()
     #test_all()
-
-
-
-
