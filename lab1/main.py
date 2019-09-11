@@ -62,25 +62,24 @@ def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
         return distance
 
 def domerau_levenshtein_rec(s1, s2):
-    """
-    https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
-    :param s1: first word
-    :param s2: second word
-    :return: domerau-levenstein distance between them
-    """
     i = len(s1)
     j = len(s2)
 
     if min(i, j) == 0:
         return max(i, j)
-    if (i > 1 and j > 1) and (s1[i - 1] == s2[j - 2]) and (s1[i - 2] == s2[j - 1]):
-        return min(domerau_levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
-                   domerau_levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
-                   domerau_levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1),
-                   domerau_levenshtein_rec(s1[0:i - 2], s2[0:j - 2]) + 1)
-    return min(domerau_levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
-               domerau_levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
-               domerau_levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
+    elif (i > 1 and j > 1 and s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]):
+        return min(
+            domerau_levenshtein_rec(s1[:i - 1], s2[:j]) + 1,
+            domerau_levenshtein_rec(s1[:i], s2[:j - 1]) + 1,
+            domerau_levenshtein_rec(s1[:i - 2], s2[:j - 2]) + 1,
+            domerau_levenshtein_rec(s1[:i - 1], s2[:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1),
+        )
+    else:
+        return min(
+            domerau_levenshtein_rec(s1[:i - 1], s2[:j]) + 1,
+            domerau_levenshtein_rec(s1[:i], s2[:j - 1]) + 1,
+            domerau_levenshtein_rec(s1[:i - 1], s2[:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1),
+        )
 
 def alloc_matrix(s1, s2):
     matrix_shape = (len(s1) + 1, len(s2) + 1)
@@ -158,7 +157,7 @@ def print_test_report(words, report_dict):
 
 def main():
     # Test
-    s1, s2 = "кот", "кто"
+    s1, s2 = "polynomial", "exponential"
     
     lm, lm_d = levenshtein_matrix(s1, s2, return_matrix=True)
     print_result("Levenshtein Matrix", s1, s2, lm_d, matrix=lm)
@@ -169,8 +168,8 @@ def main():
     dlm, dlm_d = domerau_levenshtein_matrix(s1, s2, return_matrix=True)
     print_result("Domerau-Levenshtein Matrix", s1, s2, dlm_d, matrix=dlm, dom=True)
 
-    #dlrd = domerau_levenshtein_rec(s1, s2)
-    #print_result("Domerau-Levenstain Recursive Method", s1, s2, dlrd)
+    dlrd = domerau_levenshtein_rec(s1, s2)
+    print_result("Domerau-Levenstain Recursive Method", s1, s2, dlrd)
 
 if __name__ == "__main__":
     main()
