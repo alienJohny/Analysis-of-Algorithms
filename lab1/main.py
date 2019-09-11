@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
+import string
+import random
 import time
 import sys
 from matplotlib import pyplot as plt
+
 
 def levenshtein_matrix(s1, s2, return_matrix=False):
     matrix = alloc_matrix(s1, s2)
@@ -28,6 +31,7 @@ def levenshtein_matrix(s1, s2, return_matrix=False):
     else:
         return distance
 
+
 def levenshtein_rec(s1, s2):
     i, j = len(s1), len(s2)
 
@@ -36,6 +40,7 @@ def levenshtein_rec(s1, s2):
     return min(levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
                levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
                levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
+
 
 def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
     matrix = np.zeros((len(s1) + 2, len(s2) + 2)) # column is s1
@@ -61,6 +66,7 @@ def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
     else:
         return distance
 
+
 def domerau_levenshtein_rec(s1, s2):
     i = len(s1)
     j = len(s2)
@@ -81,9 +87,11 @@ def domerau_levenshtein_rec(s1, s2):
             domerau_levenshtein_rec(s1[:i - 1], s2[:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1),
         )
 
+
 def alloc_matrix(s1, s2):
     matrix_shape = (len(s1) + 1, len(s2) + 1)
     return np.zeros(matrix_shape)
+
 
 def print_result(title, s1, s2, distance, matrix=None, dom=False):
     print("Distance between \"{0}\" and \"{1}\" according to {2} is {3}".format(s1, s2, title, int(distance)))
@@ -94,66 +102,38 @@ def print_result(title, s1, s2, distance, matrix=None, dom=False):
         print(df)
     print()
 
-def test_method(method, s1, s2, ntimes=1):
-    running_time = 0
-    distance = None
-    for _ in range(ntimes):
-        start_time = time.time()
-        distance = method(s1, s2)
-        running_time += (time.time() - start_time)
 
-    average_running_time = running_time / ntimes
+def test_matrix():
+    # Sum of the kernel and user-space CPU time will be measured
 
-    return (method.__name__, s1, s2, distance, average_running_time)
+    lev_measure = []
+    dom_lev_measure = []
+    times = 10
 
-def test_all():
-    methods = [levenshtein_rec, levenshtein_matrix, domerau_levenshtein_rec, domerau_levenshtein_matrix]
-    tests = [["ea", "ape"],
-             ["eli", "eil"],
-             ["baba", "arab"],
-             ["gugol", "google"],
-             ["martial", "marital"],
-             ["smoking", "hospital"],
-             ["channels", "chenels"],
-             ["addiction", "adicshon"]]
-    words_len = []
-    reports = {"levenshtein_rec": [],
-               "levenshtein_matrix": [],
-               "domerau_levenshtein_rec": [],
-               "domerau_levenshtein_matrix": []}
+    for i in range(100, 1100, 50):
+        # Generate 2 random string
+        s1 = "".join(random.choices(string.ascii_lowercase, k=i))
+        s2 = "".join(random.choices(string.ascii_lowercase, k=i))
 
-    for word_pair in tests:
-        print("\n{0}s1: {1}, s2: {2}{3}".format("\033[1m", word_pair[0], word_pair[1], "\033[0m"))
-        words_len.append(len(word_pair[0])) # it will be on Ox
-        for method in methods:
-            test_report = test_method(method, word_pair[0], word_pair[1])
+        # Levenstain time measurement
+        time_start = time.process_time()
+        for i in range(times):
+            _ = levenshtein_matrix(s1, s2)
+        time_end = (time.process_time() - time_start) / times
+        lev_measure.append(time_end)
+        print(time_end)
 
-            # Extract data
-            method_name = test_report[0]
-            distance = int(test_report[3])
-            runtime = test_report[4]
+        # Domerau-Levenstain measurement
+        time_start = time.process_time()
+        for i in range(times):
+            _ = domerau_levenshtein_matrix(s1, s2)
+        time_end = (time.process_time() - time_start) / times
+        dom_lev_measure.append(time_end)
+        print(time_end)
+        print()
 
-            # Save data
-            reports[method_name].append(runtime)
-            print("Method: {0:26} Distance: {1:<3d} Average running time: {2:3.12f}".format(method_name,
-                                                                                            distance,
-                                                                                            runtime))
-    print_test_report(tests, reports)
-
-def print_test_report(words, report_dict):
-    _legend = []
-    plt.grid(True)
-    plt.ylabel("Average running time depending on word length")
-    plt.xlabel("Word length")
-
-    word_lengths = [len(words[0]) for words in words]
-
-    for method in report_dict:
-        _legend.append(method)
-        plt.plot(word_lengths, report_dict[method])
-
-    plt.legend(_legend)
-    plt.show()
+    print(lev_measure)
+    print(dom_lev_measure)
 
 def main():
     # Test
@@ -171,6 +151,7 @@ def main():
     dlrd = domerau_levenshtein_rec(s1, s2)
     print_result("Domerau-Levenstain Recursive Method", s1, s2, dlrd)
 
+
 if __name__ == "__main__":
-    main()
-    #test_all()
+    #main()
+    test_matrix()
