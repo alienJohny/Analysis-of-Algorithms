@@ -6,6 +6,14 @@ import time
 import sys
 from matplotlib import pyplot as plt
 
+def levenshtein_rec(s1, s2):
+    i, j = len(s1), len(s2)
+
+    if min(i, j) == 0:
+        return max(i, j)
+    return min(levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
+               levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
+               levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
 
 def levenshtein_matrix(s1, s2, return_matrix=False):
     matrix = alloc_matrix(s1, s2)
@@ -30,16 +38,6 @@ def levenshtein_matrix(s1, s2, return_matrix=False):
         return matrix, distance
     else:
         return distance
-
-
-def levenshtein_rec(s1, s2):
-    i, j = len(s1), len(s2)
-
-    if min(i, j) == 0:
-        return max(i, j)
-    return min(levenshtein_rec(s1[0:i], s2[0:j - 1]) + 1,
-               levenshtein_rec(s1[0:i - 1], s2[0:j]) + 1,
-               levenshtein_rec(s1[0:i - 1], s2[0:j - 1]) + (0 if s1[i - 1] == s2[j - 1] else 1))
 
 
 def domerau_levenshtein_matrix(s1, s2, return_matrix=False):
@@ -108,9 +106,10 @@ def test_matrix():
 
     lev_measure = []
     dom_lev_measure = []
-    times = 10
+    times = 1
+    n = 5
 
-    for i in range(100, 1100, 50):
+    for i in range(100, 50 * n + 100, 50):
         # Generate 2 random string
         s1 = "".join(random.choices(string.ascii_lowercase, k=i))
         s2 = "".join(random.choices(string.ascii_lowercase, k=i))
@@ -135,9 +134,18 @@ def test_matrix():
     print(lev_measure)
     print(dom_lev_measure)
 
+    plt.title("Measurement of the operating time of the Levenshtein and Damerau-Levenshtein algorithms depending on the length of words")
+    plt.grid(True)
+    plt.xlabel("Words length")
+    plt.ylabel("Sum of the kernel and user-space CPU time")
+    x = list(range(n))
+    plt.plot(x, lev_measure, x, dom_lev_measure)
+    plt.legend([levenshtein_matrix.__name__, domerau_levenshtein_matrix.__name__])
+    plt.show()
+
 def main():
     # Test
-    s1, s2 = "polynomial", "exponential"
+    s1, s2 = "new", "mew"
     
     lm, lm_d = levenshtein_matrix(s1, s2, return_matrix=True)
     print_result("Levenshtein Matrix", s1, s2, lm_d, matrix=lm)
