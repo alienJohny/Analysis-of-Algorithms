@@ -33,7 +33,7 @@ def measure_time(times, f, *args):
     return avg_time
 
 
-def plot_results(x, title, xlabel, ylabel, legend, *args):
+def plot_results(title, xlabel, ylabel, legend, x, *args):
     print(args)
     
     plt.title(title)
@@ -41,7 +41,7 @@ def plot_results(x, title, xlabel, ylabel, legend, *args):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
-    for arg in args:
+    for arg in args[0]:
         print(args)
         plt.plot(x, arg, "o--")
 
@@ -65,7 +65,14 @@ def test():
         for matrix in test_matrixes:
             measured_time[f.__name__].append(measure_time(1, f, matrix, matrix))
 
-    
+    plot_results(
+        "Matrix multiplication algorithms comparison",
+        "Matrix size NxN",
+        "Seconds",
+        [f.__name__ for f in f_to_test],
+        axes,
+        [measured_time[f.__name__] for f in f_to_test]
+    )
 
 
 def main():
