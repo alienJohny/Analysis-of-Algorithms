@@ -34,29 +34,27 @@ def measure_time(times, f, *args):
 
 
 def plot_results(title, xlabel, ylabel, legend, x, *args):
-    print(args)
-    
     plt.title(title)
     plt.grid(True)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
     for arg in args[0]:
-        print(args)
         plt.plot(x, arg, "o--")
 
     plt.legend(legend)
     plt.show()
 
 
-def test():
+def test(down_size, up_size, step):
     # Test data generating
-    axes, test_matrixes = generate_test_data(100, 200, 50)
+    axes, test_matrixes = generate_test_data(down_size, up_size, step)
 
     # Functions which are need to be tested
     f_to_test = [
         classic_matrix_mult,
-        classic_winograd
+        classic_winograd,
+        optimized_winograd
     ]
     measured_time = {}
 
@@ -76,7 +74,7 @@ def test():
 
 
 def main():
-    test()
+    test(down_size=50, up_size=400, step=50)
 
 
 if __name__ == "__main__":
