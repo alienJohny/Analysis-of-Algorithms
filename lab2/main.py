@@ -5,12 +5,14 @@ import time, sys # Internal libraries
 import numpy as np
 
 
-def generate_matrixes(down_size, up_size, step):
+def generate_test_data(down_size, up_size, step):
+    axes = []
     matrixes = []
     for i in range(down_size, up_size + step, step):
+        axes.append(i)
         matrixes.append(np.random.randint(-150, 150, size=(i, i)))
 
-    return np.array(matrixes)
+    return axes, np.array(matrixes)
 
 
 def measure_time(times, f, *args):
@@ -19,9 +21,12 @@ def measure_time(times, f, *args):
     Returned number is average running time in seconds
     """
 
+    print("Testing function: " + f.__name__, end="")
+
     time_start = time.process_time()
     for i in range(times):
         f(*args)
+    print(" --- DONE")
     time_end = time.process_time() - time_start
     avg_time = time_end / times
 
@@ -45,11 +50,26 @@ def plot_results(x, title, xlabel, ylabel, legend, *args):
 
 
 def test():
-    plot_results([1, 2, 3, 4], "", "", "", 
+    # Test data generating
+    axes, test_matrixes = generate_test_data(100, 200, 50)
+
+    # Functions which are need to be tested
+    f_to_test = [
+        classic_matrix_mult,
+        classic_winograd
+    ]
+    measured_time = {}
+
+    for f in f_to_test:
+        measured_time[f.__name__] = []
+        for matrix in test_matrixes:
+            measured_time[f.__name__].append(measure_time(1, f, matrix, matrix))
+
+    
 
 
 def main():
-    pass
+    test()
 
 
 if __name__ == "__main__":
