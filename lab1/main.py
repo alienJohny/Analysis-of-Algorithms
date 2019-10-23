@@ -107,9 +107,9 @@ def test_matrix():
     lev_measure = []
     dom_lev_measure = []
     times = 1
-    n = 5
+    n = 10
 
-    for i in range(100, 50 * n + 100, 50):
+    for i in range(1, 11):
         # Generate 2 random string
         s1 = "".join(random.choices(string.ascii_lowercase, k=i))
         s2 = "".join(random.choices(string.ascii_lowercase, k=i))
@@ -125,7 +125,7 @@ def test_matrix():
         # Domerau-Levenstain measurement
         time_start = time.process_time()
         for i in range(times):
-            _ = domerau_levenshtein_matrix(s1, s2)
+            _ = levenshtein_rec(s1, s2)
         time_end = (time.process_time() - time_start) / times
         dom_lev_measure.append(time_end)
         print(time_end)
@@ -134,13 +134,14 @@ def test_matrix():
     print(lev_measure)
     print(dom_lev_measure)
 
-    plt.title("Measurement of the operating time of the Levenshtein and Damerau-Levenshtein algorithms depending on the length of words")
+    plt.title("Measurement of the operating time of the Levenshtein and Damerau-Levenshtein")
     plt.grid(True)
     plt.xlabel("Words length")
-    plt.ylabel("Sum of the kernel and user-space CPU time")
+    plt.ylabel("Seconds")
     x = list(range(n))
-    plt.plot(x, lev_measure, x, dom_lev_measure)
-    plt.legend([levenshtein_matrix.__name__, domerau_levenshtein_matrix.__name__])
+    plt.plot(x, lev_measure, "ro--")
+    plt.plot(x, dom_lev_measure, "go--")
+    plt.legend([levenshtein_matrix.__name__, levenshtein_rec.__name__])
     plt.show()
 
 def main():
