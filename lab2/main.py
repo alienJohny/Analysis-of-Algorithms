@@ -61,7 +61,7 @@ def test(down_size, up_size, step):
     for f in f_to_test:
         measured_time[f.__name__] = []
         for matrix in test_matrixes:
-            measured_time[f.__name__].append(measure_time(1, f, matrix, matrix))
+            measured_time[f.__name__].append(measure_time(3, f, matrix, matrix))
 
     plot_results(
         "Matrix multiplication algorithms comparison",
@@ -74,7 +74,7 @@ def test(down_size, up_size, step):
 
 
 def main():
-    test(down_size=50, up_size=400, step=50)
+    test(down_size=50, up_size=200, step=50)
 
 
 if __name__ == "__main__":
