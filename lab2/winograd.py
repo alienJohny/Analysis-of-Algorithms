@@ -28,7 +28,7 @@ def classic_winograd(A, B):
             for k in range(N // 2):
                 C[i][j] += ((A[i][2 * k] + B[2 * k + 1][j]) * (A[i][2 * k + 1] + B[2 * k][j]))
 
-    if N % 2:
+    if N % 2 != 0:
         for i in range(M):
             for j in range(Q):
                 C[i][j] += A[i][N - 1] * B[N - 1][j]
@@ -59,11 +59,31 @@ def optimized_winograd(A, B):
 
     for i in range(M):
         for j in range(Q):
-            C[i][j] = sum((A[i][2 * k] + B[2 * k + 1][j]) * (A[i][2 * k + 1] + B[2 * k][j]) for k in range(d))\
-                           - MulB[i] - MulV[j]
+            C[i][j] = sum((A[i][2 * k] + B[2 * k + 1][j]) * (A[i][2 * k + 1] + B[2 * k][j]) for k in range(d)) - MulB[i] - MulV[j]
 
-    if N % 2:
+    if N % 2 != 0:
         for i in range(M):
             C[i][j] = sum(A[i][N - 1] * B[N - 1][j] for j in range(Q))
 
     return C
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
