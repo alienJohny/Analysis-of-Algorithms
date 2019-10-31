@@ -27,8 +27,3 @@ def quick_sort(a):
     qs_subroutine(a, 0, len(a) - 1)
 
     return a
-    
-
-a = [5, 4, 0, 0, 0, 3, 2, 1]
-print(a)
-print(quick_sort(a))
