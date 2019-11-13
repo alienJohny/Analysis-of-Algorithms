@@ -69,7 +69,7 @@ def optimized_winograd(A, B):
             # Сброс буфера в ячейку
             C[i][j] = buff
                 
-    if N % 2 != 0:
+    if N % 2 != 0:9
         for i in range(M):
             for j in range(Q):
                 C[i][j] += A[i][N - 1] * B[N - 1][j]
