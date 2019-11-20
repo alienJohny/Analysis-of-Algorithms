@@ -53,8 +53,8 @@ def parallel(a, b, f, num):
 
     return c
 
-threads_n = [1, 2, 4, 8]
-k = 5
+threads_n = range(1, 16 + 1)
+k = 2
 p = 0
 test_matrix = np.random.randint(5, size=(100 * k + p, 100 * k + p))
 time_measurement = {}
@@ -64,6 +64,9 @@ for n_threads in rng:
     parallel(test_matrix, test_matrix, classic_winograd_mult, n_threads)
     end_time = time.time() - time_start
     time_measurement[n_threads] = end_time
+
+    print(end_time)
+    
 [print(time_measurement[i]) for i in time_measurement]
 x = rng
 y = [time_measurement[i] for i in rng]
@@ -75,7 +78,5 @@ plt.xlabel("Number of threads")
 plt.bar(x, y, width=0.2)
 plt.plot(x, y, 'ro--')
 plt.show()
-
-
 
 
