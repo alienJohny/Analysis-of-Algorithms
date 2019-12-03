@@ -3,6 +3,7 @@
 
 import numpy as np # Для работы с векторами
 from matplotlib import pyplot as plt
+from sklearn.datasets import make_classification, make_blobs
 
 
 class SVM:
@@ -46,6 +47,7 @@ class SVM:
         latest_optimum = self.max_feature_value*10
 
         # stepping down the vector
+        print("Learning has been started...")
         for step in step_sizes:
             w = np.array([latest_optimum, latest_optimum])
             optimized = False
@@ -67,7 +69,6 @@ class SVM:
 
                 if w[0] < 0:
                     optimized = True
-                    print('Optimized a step.')
                 else:
                     w = w - step
 
@@ -93,5 +94,37 @@ data_dict = {-1: np.array([[1, 7],
                            [6,-1],
                            [7, 3]])}
 
+# More real world data
+data = make_blobs(n_features=2, centers=2)
+classes = data[1]
+dots = data[0]
+
+real_dd = {1: [], -1: []}
+
+cls1_x = []
+cls1_y = []
+cls2_x = []
+cls2_y = []
+
+for i in range(len(classes)):
+    if classes[i] == 0:
+        cls1_x.append(dots[i][0])
+        cls1_y.append(dots[i][1])
+
+        real_dd[1].append(dots[i])
+    else:
+        cls2_x.append(dots[i][0])
+        cls2_y.append(dots[i][1])
+
+        real_dd[-1].append(dots[i])
+
+plt.grid(True)
+plt.xlabel("x")
+plt.ylabel("y")
+plt.plot(cls1_x, cls1_y, "ro")
+plt.plot(cls2_x, cls2_y, "bo")
+plt.legend(["class 1", "class -1"])
+plt.show()
+
 model = SVM()
-model.fit(data_dict)
+model.fit(real_dd)
