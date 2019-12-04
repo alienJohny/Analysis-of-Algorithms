@@ -4,7 +4,9 @@
 import numpy as np # Для работы с векторами
 from matplotlib import pyplot as plt
 from sklearn.datasets import make_classification, make_blobs
-
+from itertools import combinations_with_replacement
+from sklearn.datasets import load_iris
+from itertools import product
 
 class SVM:
     def __init__(self):
@@ -16,10 +18,12 @@ class SVM:
         # {||w||: [w, b]} Contain any optimization values
         opt_dict = {}
 
-        transforms = [[ 1, 1],
-                      [-1, 1],
-                      [-1,-1],
-                      [ 1,-1]]
+        self.n_features = len(data[list(data.keys())[0]][0])
+        print(self.n_features)
+        arrays = [(-1, 1) for _ in range(self.n_features)]
+        transforms = np.array(list(product(*arrays)))
+
+        print(transforms)
 
         all_data = []
         for class_label in self.data:
@@ -44,12 +48,12 @@ class SVM:
 
         b_range_multiple = 5
         b_multiple = 5
-        latest_optimum = self.max_feature_value*10
+        latest_optimum = self.max_feature_value * 10
 
         # stepping down the vector
         print("Learning has been started...")
         for step in step_sizes:
-            w = np.array([latest_optimum, latest_optimum])
+            w = np.array([latest_optimum for i in range(self.n_features)])
             optimized = False
             while not optimized:
                 for b in np.arange(-1 * (self.max_feature_value * b_range_multiple),
@@ -73,10 +77,15 @@ class SVM:
                     w = w - step
 
             norms = sorted([n for n in opt_dict])
-            #||w|| : [w,b]
+
+            print(norms)
+            
+            #||w|| : [w, b]
             opt_choice = opt_dict[norms[0]]
             self.w = opt_choice[0]
             self.b = opt_choice[1]
+            print(self.w)
+            print(self.b)
             latest_optimum = opt_choice[0][0] + step * 2
 
     def predict(self, features):
@@ -87,6 +96,28 @@ class SVM:
         return prediction
 
 # Данные для классификации
+iris = load_iris(return_X_y=True)
+
+"""
+X0 = [iris[0][i] for i in range(len(iris[1])) if iris[1][i] == 0]
+y0 = [iris[1][i] for i in range(len(iris[1])) if iris[1][i] == 0]
+X1 = [iris[0][i] for i in range(len(iris[1])) if iris[1][i] == 1]
+y1 = [iris[1][i] for i in range(len(iris[1])) if iris[1][i] == 1]
+
+X0_train = X0[:40]
+X0_test  = X0[40:]
+y0_train = y0[:40]
+y0_test  = y0[40:]
+
+X1_train = X1[:40]
+X1_test  = X1[40:]
+y1_train = y1[:40]
+y1_test  = y1[40:]
+
+data_dict = {0: X0_train,
+             1: X1_train}
+"""
+
 data_dict = {-1: np.array([[1, 7],
                            [2, 8],
                            [3, 8]]),
@@ -94,37 +125,5 @@ data_dict = {-1: np.array([[1, 7],
                            [6,-1],
                            [7, 3]])}
 
-# More real world data
-data = make_blobs(n_features=2, centers=2)
-classes = data[1]
-dots = data[0]
-
-real_dd = {1: [], -1: []}
-
-cls1_x = []
-cls1_y = []
-cls2_x = []
-cls2_y = []
-
-for i in range(len(classes)):
-    if classes[i] == 0:
-        cls1_x.append(dots[i][0])
-        cls1_y.append(dots[i][1])
-
-        real_dd[1].append(dots[i])
-    else:
-        cls2_x.append(dots[i][0])
-        cls2_y.append(dots[i][1])
-
-        real_dd[-1].append(dots[i])
-
-plt.grid(True)
-plt.xlabel("x")
-plt.ylabel("y")
-plt.plot(cls1_x, cls1_y, "ro")
-plt.plot(cls2_x, cls2_y, "bo")
-plt.legend(["class 1", "class -1"])
-plt.show()
-
 model = SVM()
-model.fit(real_dd)
+model.fit(data_dict)
