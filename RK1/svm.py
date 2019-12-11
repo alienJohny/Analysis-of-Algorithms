@@ -164,16 +164,6 @@ data = make_blobs(n_samples=150,
 data = {-1 : data[0][data[1] == 0],
          1 : data[0][data[1] == 1]}
 
-"""
-plt.grid(True)
-plt.xlabel("x")
-plt.ylabel("y")
-plt.plot(data[-1][:, 0], data[-1][:, 1], 'o')
-plt.plot(data[ 1][:, 0], data[ 1][:, 1], 'o')
-plt.legend(["class 1", "class -1"])
-plt.show()
-"""
-
 model = Support_Vector_Machine(visualization=True)
 model.fit(data)
 predict_us = [[2 , -14],
