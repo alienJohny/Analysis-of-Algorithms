@@ -9,21 +9,18 @@ from tools import *
 MAX_DIS = 10  # maximum distance
 MIN_DIS = 1  # minimum distance
 
-def print_matrix(am, M, type):
-    if type == 'am':
-        print("Adjacency matrix")
-    elif type == 'dm':
-        print("Distance matrix")
+def print_matrix(am, M, msg):
+    print(msg)
 
     labels = [str(i) for i in range(1, M + 1)]
     df = pd.DataFrame(am, columns=labels)
     df.index = labels
-    print(df)
+    print(df, end='\n\n')
 
 def plot_graph(am, dis_m):
     g = nx.DiGraph()
 
-    print_matrix(dis_m, len(dis_m), 'dm')
+    print_matrix(dis_m, len(dis_m), 'Distance Matrix')
 
     for i in range(len(am)):
         for j in range(i + 1, len(am[0])):
@@ -43,8 +40,8 @@ def plot_graph(am, dis_m):
 def P(i, j, nu, beta, tau, alpha, k):
     pass
 
-def random_adjacency_matrix(n):
-    matrix = np.array([[random.randint(0, 1) for i in range(n)] for j in range(n)])
+def get_adjacency_matrix(n):
+    matrix = np.array([[1 for i in range(n)] for j in range(n)])
 
     # No vertex connects to itself
     for i in range(n):
@@ -60,7 +57,10 @@ def random_adjacency_matrix(n):
 def fill_dis_matr(n):
     m = np.zeros((n, n))
     for i in range(n):
-        for j in range(i+1, n):
+        for j in range(i + 1, n):
             t = random.randint(MIN_DIS, MAX_DIS)
             m[i][j], m[j][i] = t, t
+
+    m[m == 0] = np.inf
+
     return m
