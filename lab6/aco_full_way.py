@@ -45,11 +45,8 @@ class AntColony(object):
     def spread_pheronome(self, all_paths, n_best, shortest_path):
         sorted_paths = sorted(all_paths, key=lambda x: x[1])
         for path, dist in sorted_paths[:n_best]:
-            total_pheromone = 0
             for move in path:
-                total_pheromone += self.distances[move]
-            for move in path:
-                self.pheromone[move] += 1.0 / total_pheromone
+                self.pheromone[move] += 1.0 / self.distances[move]
 
     def gen_path_dist(self, path):
         total_dist = 0

@@ -15,6 +15,10 @@ def get_way_len(dist_m, nodes):
     n_j = nodes[1] - 1
     return dist_m[n_i][n_j]
 
+def get_pher(pm, nodes):
+    n_i = nodes[0] - 1
+    n_j = nodes[1] - 1
+    return pm[n_i][n_j]
 
 def find_best_way(dist_m):
     n_nodes = len(dist_m)

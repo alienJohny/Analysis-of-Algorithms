@@ -146,7 +146,7 @@ def test_matrix():
 
 def main():
     # Test
-    s1, s2 = "new", "mew"
+    s1, s2 = "qwert", "qewtr"
     
     lm, lm_d = levenshtein_matrix(s1, s2, return_matrix=True)
     print_result("Levenshtein Matrix", s1, s2, lm_d, matrix=lm)
@@ -162,5 +162,5 @@ def main():
 
 
 if __name__ == "__main__":
-    #main()
-    test_matrix()
+    main()
+    #test_matrix()
