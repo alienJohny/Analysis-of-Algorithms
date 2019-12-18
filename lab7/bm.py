@@ -1,76 +1,76 @@
-def bm_search(haystack, needle):
+import string
+
+
+def badCharHeuristic(string, size):
     """
-    Search list `haystack` for sub-list `needle`.
+    The preprocessing function for
+    Boyer Moore's bad character heuristic
     """
-    if len(needle) == 0:
-        return 0
-    char_table = make_char_table(needle)
-    offset_table = make_offset_table(needle)
-    i = len(needle) - 1
-    while i < len(haystack):
-        j = len(needle) - 1
-        while needle[j] == haystack[i]:
-            if j == 0:
-                return i
-            i -= 1
+
+    # Initialize all occurrence as -1
+    badChar = [-1] * 256
+
+    # Fill the actual value of last occurrence
+    for i in range(size):
+        badChar[ord(string[i])] = i
+
+        # return initialized list
+    return badChar
+
+
+def search(txt, pat):
+    """
+    A pattern searching function that uses Bad Character
+    Heuristic of Boyer Moore Algorithm
+    """
+    m = len(pat)
+    n = len(txt)
+
+    # create the bad character list by calling
+    # the preprocessing function badCharHeuristic()
+    # for given pattern
+    badChar = badCharHeuristic(pat, m)
+
+    # s is shift of the pattern with respect to text
+    s = 0
+    while s <= n - m:
+        j = m - 1
+
+        # Keep reducing index j of pattern while
+        # characters of pattern and text are matching
+        # at this shift s
+        while j >= 0 and pat[j] == txt[s + j]:
             j -= 1
-        i += max(offset_table[len(needle) - 1 - j], char_table.get(haystack[i]));
+
+        # If the pattern is present at current shift,
+        # then index j will become -1 after the above loop
+        if j < 0:
+            # print("Pattern occur at shift = {}".format(s))
+            return s  # Return only first entry
+
+            '''     
+            Shift the pattern so that the next character in text 
+            aligns with the last occurrence of it in pattern. 
+            The condition s+m < n is necessary for the case when 
+            pattern occurs at the end of text 
+            
+            s += (m - badChar[ord(txt[s + m])] if s + m < n else 1)
+            '''
+        else:
+            '''
+            Shift the pattern so that the bad character in text 
+            aligns with the last occurrence of it in pattern. The 
+            max function is used to make sure that we get a positive 
+            shift. We may get a negative shift if the last occurrence 
+            of bad character in pattern is on the right side of the 
+            current character. 
+            '''
+            s += max(1, j - badChar[ord(txt[s + j])])
+
     return -1
 
 
-def make_char_table(needle):
-    """
-    Makes the jump table based on the mismatched character information.
-    """
-    table = {}
-    for i in range(len(needle) - 1):
-        table[needle[i]] = len(needle) - 1 - i
-    return table
-
-
-def make_offset_table(needle):
-    """
-    Makes the jump table based on the scan offset in which mismatch occurs.
-    """
-    table = []
-    last_prefix_position = len(needle)
-    for i in reversed(range(len(needle))):
-        if is_prefix(needle, i + 1):
-            last_prefix_position = i + 1
-        table.append(last_prefix_position - i + len(needle) - 1)
-    for i in range(len(needle) - 1):
-        slen = suffix_length(needle, i)
-        table[slen] = len(needle) - 1 - i + slen
-    return table
-
-
-def is_prefix(needle, p):
-    """
-    Is needle[p:end] a prefix of needle?
-    """
-    j = 0
-    for i in range(p, len(needle)):
-        if needle[i] != needle[j]:
-            return 0
-        j += 1   
-    return 1
-
-
-def suffix_length(needle, p):
-    """
-    Returns the maximum length of the substring ending at p that is a suffix.
-    """
-    length = 0;
-    j = len(needle) - 1
-    for i in reversed(range(p + 1)):
-        if needle[i] == needle[j]:
-            length += 1
-        else:
-            break
-        j -= 1
-    return length
-
-def test():    
+def test():
     tests = [
         ["000110", "01", 2],
         ["abcdef", "de", 3],
@@ -83,7 +83,7 @@ def test():
         needle = t[1]
         ground_true = t[2]
 
-        response = bm_search(haystack, needle)
+        response = search(haystack, needle)
 
         if response == ground_true:
             status = "OK"
@@ -95,7 +95,8 @@ def test():
 
 
 def main():
-    test()
+    # test()
+    pass
 
 if __name__ == "__main__":
     main()

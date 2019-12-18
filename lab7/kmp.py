@@ -23,3 +23,26 @@ def kmp(s, t):
             break
     return index
 
+def test():
+    tests = [
+        ["000110", "01", 2],
+        ["abcdef", "de", 3],
+        ["acgtagtcgtc", "gtcg", 5],
+        ["atgcatcg", "gta", -1]]
+
+    for t in tests:
+        status = None
+        haystack = t[0]
+        needle = t[1]
+        ground_true = t[2]
+
+        response = kmp(needle, haystack)
+
+        if response == ground_true:
+            status = "OK"
+        else:
+            status = "ERROR"
+
+        print("Tested haystack '{0}' and needle '{1}', ground true: {2}, found: {3}. {4}".format(
+            haystack, needle, ground_true, response, status))
+
