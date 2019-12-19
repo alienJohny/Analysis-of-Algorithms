@@ -28,7 +28,8 @@ def test():
         ["000110", "01", 2],
         ["abcdef", "de", 3],
         ["acgtagtcgtc", "gtcg", 5],
-        ["atgcatcg", "gta", -1]]
+        ["atgcatcg", "gta", -1],
+        ["abababcb", "ababcb", 2]]
 
     for t in tests:
         status = None
@@ -46,3 +47,4 @@ def test():
         print("Tested haystack '{0}' and needle '{1}', ground true: {2}, found: {3}. {4}".format(
             haystack, needle, ground_true, response, status))
 
+test()

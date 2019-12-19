@@ -75,7 +75,8 @@ def test():
         ["000110", "01", 2],
         ["abcdef", "de", 3],
         ["acgtagtcgtc", "gtcg", 5],
-        ["atgcatcg", "gta", -1]]
+        ["atgcatcg", "gta", -1],
+        ["abababcb", "ababcb", 2]]
 
     for t in tests:
         status = None
@@ -95,8 +96,8 @@ def test():
 
 
 def main():
-    # test()
-    pass
+    test()
+    #pass
 
 if __name__ == "__main__":
     main()
